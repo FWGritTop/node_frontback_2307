@@ -403,8 +403,76 @@ xml代码
     </delete>
 ```
 
-### 用接口来实现增删改查 仅需要写xml
+### 用接口来实现增删改查 仅需要写xml和接口类
+#### xml文件
+这里注意`mapper namespace`的参数是接口类的引用
+```xml
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "https://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="sqlctrl.UserMapper">
+    <select id="selectUser" resultType="entity.user">
+        select * from user
+    </select>
+</mapper>
+```
+#### 接口类的实现
+函数名对应select的id如果是其他的操作则是其他的id
+```java
+public interface UserMapper {
+    public List<user> selectUser();
+}
+```
 
+#### 最终调用
+重点是`session.getMapper(UserMapper.class)`完成一个mybatis内部的映射关系
+```java
+UserMapper userMapper = sqlSession.getMapper(UserMapper.class);
+```
+
+### sql工具类
+通常直接写一个java类来获取session
+来简化每次连接获取session会话
+```java
+package sqlctrl;
+import java.io.InputStream;
+import org.apache.ibatis.io.Resources;
+import org.apache.ibatis.session.SqlSession;
+import org.apache.ibatis.session.SqlSessionFactory;
+import org.apache.ibatis.session.SqlSessionFactoryBuilder;
+public class SqlSessionUtil {
+    public static SqlSession getSqlSession() throws Exception{
+        String resource = "mybatisconfig.xml";
+        //使用类加载器加载mybatis的配置文件（它也加载关联的映射文件）
+        InputStream is = Resources.getResourceAsStream(resource);
+        //构建sqlSession的工厂
+        SqlSessionFactory sessionFactory = new SqlSessionFactoryBuilder().build(is);
+        //创建能执行映射文件中sql的sqlSession
+        SqlSession sqlSession = sessionFactory.openSession();
+        return sqlSession;
+    }
+}
+```
+使用
+```java
+package sqlctrl;
+import entity.user;
+import org.apache.ibatis.session.SqlSession;
+import java.util.List;
+public class testmybatis {
+    public static void main(String[] args) throws Exception {
+        SqlSession sqlSession = SqlSessionUtil.getSqlSession();
+        UserMapper userMapper = sqlSession.getMapper(UserMapper.class);
+        List<user> users=userMapper.selectUser();
+        sqlSession.close();
+    }
+}
+```
+
+
+### Mybatis的mapper文件中$和#的区别
+[Mybatis的mapper文件中$和#的区别](https://www.cnblogs.com/f-zhao/p/6171984.html)
 
 
 ## 数据库
