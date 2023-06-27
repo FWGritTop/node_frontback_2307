@@ -4,6 +4,35 @@
 ---
 ### 官网
 [官网](https://spring.io/projects/spring-boot)
+[一个挺全的总结](https://zhuanlan.zhihu.com/p/362984115)
+[如何创建一个springboot项目](https://blog.csdn.net/u011374856/article/details/104533501)
+
+### 特性
+1. SpringBoot Starter：他将常用的依赖分组进行了整合，将其合并到一个依赖中，这样就可以一次性添加到项目的Maven或Gradle构建中。
+2. 使编码变得简单，SpringBoot采用 JavaConfig的方式对Spring进行配置，并且提供了大量的注解，极大的提高了工作效率，比如@Configuration和@bean注解结合，基于@Configuration完成类扫描，基于@bean注解把返回值注入IOC容器。
+3. 自动配置：SpringBoot的自动配置特性利用了Spring对条件化配置的支持，合理地推测应用所需的bean并自动化配置他们。
+4. 使部署变得简单，SpringBoot内置了三种Servlet容器，Tomcat，Jetty,undertow.我们只需要一个Java的运行环境就可以跑SpringBoot的项目了，SpringBoot的项目可以打成一个jar包。
+
+### 依赖
+pom.xml
+```xml
+<parent>
+    <groupId>org.springframework.boot</groupId>
+    <artifactId>spring-boot-starter-parent</artifactId>
+    <version>2.5.14</version>
+    <relativePath/>
+</parent>
+```
+在目录下创建一个maven子项
+子项的pom.xml
+```xml
+<dependency>
+    <groupId>org.springframework.boot</groupId>
+    <artifactId>spring-boot-starter-web</artifactId>
+</dependency>
+```
+
+
 ### 杂项
 #### 修改端口
 application.properties下
@@ -337,7 +366,7 @@ public class mybatis {
 
 ### YML的方式配置应用
 用这个配置应用时不需要去在程序中导入conf.xml
-但其application也只能是yml格式其实和properity没区别
+但其application也只能是yml格式其实和properties没区别
 只是格式上有差异,相当于全局配置
 其中*xml会扫描目录下所有的xml文件
 ```yml
@@ -518,6 +547,33 @@ public class testmybatis {
 ### Mybatis的mapper文件中$和#的区别
 [Mybatis的mapper文件中$和#的区别](https://www.cnblogs.com/f-zhao/p/6171984.html)
 
+
+## Mybatis-plus
+---
+### 官网
+[官网](https://baomidou.com/)
+
+### 依赖
+```xml
+<!--        数据库的驱动-->
+        <dependency>
+            <groupId>mysql</groupId>
+            <artifactId>mysql-connector-java</artifactId>
+            <scope>runtime</scope>
+        </dependency>
+        <!--        数据源，自动配置，Hikari-->
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-jdbc</artifactId>
+        </dependency>
+
+        <!--        Mybaits-plus     跟spring整合的-->
+        <dependency>
+            <groupId>com.baomidou</groupId>
+            <artifactId>mybatis-plus-boot-starter</artifactId>
+            <version>3.5.3.1</version>
+        </dependency>
+```
 
 ## 数据库
 ---
