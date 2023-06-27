@@ -2,18 +2,36 @@
 
 ## Springboot
 ---
-### 修改端口
+### 官网
+[官网](https://spring.io/projects/spring-boot)
+### 杂项
+#### 修改端口
 application.properties下
 ``` js
 server.port=8088
 ```
 
-### springboot版本错误
+#### 修改上下文
+application.properties下
+``` js
+server.servlet.context-path=/springboot
+```
+
+#### 三层架构及其修饰符
+![Alt text](image-22.png)
+```java
+@Controller
+@Service
+@Repository
+```
+
+
+#### springboot版本错误
 ![Alt text](image-5.png)
 因为springboot3.0需要Java17以上的版本
 降低springboot版本，改成2.7.12
 
-### 热部署
+#### 热部署
 ![Alt text](image-6.png)
 ![Alt text](image-7.png)
 ```js
@@ -180,7 +198,9 @@ pom.xml依赖
         </dependency>
 ```
 
-### 从 XML 中构建 SqlSessionFactory
+### XML的方式配置应用
+
+#### 从 XML 中构建 SqlSessionFactory
 resource 目录下建立xml配置文件
 ```xml
 <?xml version="1.0" encoding="UTF-8" ?>
@@ -211,7 +231,7 @@ password填写数据库密码
 
 mappers设置xml mapper.xml
 对应的mapper.xml下面的路径
-### 映射 SQL 语句
+#### 映射 SQL 语句
 mapper.xml中写sql语句
 ```xml
 <?xml version="1.0" encoding="UTF-8" ?>
@@ -228,7 +248,7 @@ mapper namespace 大概是类似于clas类名
 select id 大概是对应类下面的方法名
 resulType 对应的返回类型，可以写 map
 
-### 使用
+#### 使用
 ```java
 	SqlSessionFactory sqlSessionFactory = null;
         SqlSession session = null;
@@ -253,7 +273,7 @@ session调用`session.selectList("test.selectUser")`
 `test`是mapper namespace的参数
 `selectUser`是select id的参数
 
-### 实例
+#### 实例
 src/main/resources/mybatisconfig.xml
 ```xml
 <?xml version="1.0" encoding="UTF-8" ?>
@@ -315,6 +335,24 @@ public class mybatis {
 }
 ```
 
+### YML的方式配置应用
+用这个配置应用时不需要去在程序中导入conf.xml
+但其application也只能是yml格式其实和properity没区别
+只是格式上有差异,相当于全局配置
+其中*xml会扫描目录下所有的xml文件
+```yml
+spring:
+  datasource:
+    url: jdbc:mysql://localhost:3306/nefu?useSSL=false
+    driver-class-name: com.mysql.jdbc.Drive
+    username: root
+    password: 123456
+    hikari:
+      connection-test-query: select 1
+
+mybatis:
+  mapper-locations: classpath*:mapper/*.xml
+```
 ### 与实体对象的绑定
 #### 实体对象的创建
 新建一个java类
