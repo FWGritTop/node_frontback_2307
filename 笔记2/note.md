@@ -679,3 +679,84 @@ ResultSet re=stat.executeQuery(sql);
     </dependency>
 
 ```
+
+## RESTful
+### GET
+一般用来获取资源（获取记录）
+>安全且幂等
+获取表示
+变更时获取表示（缓存）
+>
+### POST
+一般是用来新增资源(新增记录)
+>不安全且不幂等
+使用服务端管理的（自动产生）的实例号创建资源
+创建子资源
+部分更新资源
+如果没有被修改，则不过更新资源（乐观锁）
+>
+### PUT
+一般用来更新资源（修改记录）
+>不安全但幂等
+用客户端管理的实例号创建一个资源
+通过替换的方式更新资源
+如果未被修改，则更新资源（乐观锁）
+>
+### DELETE
+一般用来删除资源（删除记录）
+>不安全但幂等
+删除资源
+>
+
+## Element杂项
+---
+### containner全覆盖
+```html
+<style type="text/css">
+/*
+	找到html标签、body标签，和挂载的标签
+	都给他们统一设置样式
+*/
+  html,body,#app,.el-container{
+        /*设置内部填充为0，几个布局元素之间没有间距*/
+        padding: 0px;
+         /*外部间距也是如此设置*/
+        margin: 0px;
+        /*统一设置高度为100%*/
+        height: 100%;
+    }
+</style>
+```
+
+### 侧栏全覆盖
+```css
+.el-menu {
+  height: 100vh;
+}
+```
+
+### router-link去掉下划线
+```css
+a{
+  text-decoration: none;
+}
+.router-link-active {
+  text-decoration: none;
+}
+```
+
+### NavMenu折叠卡顿
+```css
+.el-menu-vertical-demo:not(.el-menu--collapse) {
+  width: 200px;
+  height: 100%;
+}
+```
+
+### 隐藏侧栏滚动条
+```css
+.el-aside::-webkit-scrollbar {
+     display: none;
+
+}
+```
