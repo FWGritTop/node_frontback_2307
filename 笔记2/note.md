@@ -122,13 +122,52 @@ import axios from 'axios'
 axios.defaults.baseURL ="http://localhost:8088"
 Vue.prototype.$http =axios
 ```
-### 还需要在当前目录下安装anxios依赖
+### 还需要在当前目录下安装axios依赖
 `npm install --save axios `
 
 ### 跨域问题的解决
+#### 跨域问题的解决-后端方法
 在后端spring controller里
 类前加入`@CrossOrigin`
 ![Alt text](image-14.png)
+
+#### 跨域问题的解决-前端方法 ⭐推荐
+修改根路径下/vue.config.js
+使用代理的方式
+```js
+module.exports = defineConfig({
+  transpileDependencies: true,
+  lintOnSave:false, //关闭代码格式化校验工具
+    devServer:{
+     port: 80 ,//修改启动端口
+	  proxy: {
+		  // detail: https://localhost
+		  //    /api/user/list  /user/list
+		  //         http://localhost:8080/user/list
+		  '/api': {
+			target: `http://localhost:8088/`,
+			changeOrigin: true,
+			pathRewrite: {
+			  '^/api' : ''
+			}
+		  }
+		},
+    }
+})
+
+```
+axios的主机名可以用api
+替代如下：
+```js
+this.$http.get("/api/hello").then(res=>{
+          this.info=res.data
+          console.log('res',res)})
+
+```
+[webpack 配置 changeOrigin 无效的说明](https://blog.csdn.net/qq_39291919/article/details/108807111)
+[webpack使用proxy代理时pathRewrite不生效的分析](https://blog.csdn.net/weixin_40920953/article/details/85150784)
+
+
 
 ### 使用
 ![Alt text](image-15.png)
@@ -368,6 +407,8 @@ public class mybatis {
 用这个配置应用时不需要去在程序中导入conf.xml
 但其application也只能是yml格式其实和properties没区别
 只是格式上有差异,相当于全局配置
+properties 和yml可以同时存在
+properties优先级高于yml
 其中*xml会扫描目录下所有的xml文件
 ```yml
 spring:
@@ -550,8 +591,10 @@ public class testmybatis {
 
 ## Mybatis-plus
 ---
-### 官网
+### 参考
 [官网](https://baomidou.com/)
+[MyBatis-Plus分页插件的使用](https://blog.csdn.net/hbtj_1216/article/details/120390494)
+[超全用法](https://blog.csdn.net/q736317048/article/details/110530054)
 
 ### 依赖
 ```xml
@@ -574,6 +617,52 @@ public class testmybatis {
             <version>3.5.3.1</version>
         </dependency>
 ```
+
+### 分页的使用
+#### 新建配置类
+```java
+@Configuration
+public class MyBatisPlusConfig {
+
+    /**
+     * 分页插件配置
+     *
+     * @return
+     */
+    @Bean
+    public MybatisPlusInterceptor mybatisPlusInterceptor() {
+        MybatisPlusInterceptor interceptor = new MybatisPlusInterceptor();
+        // 向MyBatis-Plus的过滤器链中添加分页拦截器，需要设置数据库类型（主要用于分页方言）
+        interceptor.addInnerInterceptor(new PaginationInnerInterceptor(DbType.MYSQL));
+        return interceptor;
+    }
+}
+```
+#### controller层的调用
+```java
+/**
+     *  page  current 1
+     *        size   10
+     *
+     *
+     *     select * from user  limit 0 ,10
+     *
+     *   http://127.0.0.1:8080/user/page?current=1&size=2
+     *   http://127.0.0.1:8080/user/page?current=2&size=2
+     *
+     * @param page
+     * @return
+     */
+    @RequestMapping("/page")
+    public Page page(Page page){
+
+        return userService.page(page);
+    }
+```
+
+#### total 显示为0解决
+[MyBatis-Plus Page类的total值为0问题解决](https://blog.csdn.net/qq_38974638/article/details/120488839)
+
 
 ## 数据库
 ---
@@ -760,3 +849,111 @@ a{
 
 }
 ```
+
+### 弹出确认框
+```js
+this.$confirm('是否', '提示', {
+        confirmButtonText: '确定',
+        cancelButtonText: '取消',
+        type: 'warning'
+      }).then(() => {
+        this.$message({
+          type: 'success',
+          message: '已成功'
+        });
+      }).catch(() => {
+        this.$message({
+          type: 'info',
+          message: '已取消'
+        });
+      });
+```
+
+## Swagger
+---
+### 参考
+[Spring boot集成Swagger，并配置多个扫描路径](https://www.jianshu.com/p/dcaff30f91cc?tdsourcetag=s_pctim_aiomsg)
+### 介绍
+可以通过地址访问一个可视化界面，显示接口即作用，可以进行测试，方便前后端对接
+
+springboot2.6以上和Swagger冲突，在 application.properties加上
+
+`spring.mvc.pathmatch.matching-strategy=ant_path_matcher`
+
+### 依赖
+```xml
+<dependency>
+    <groupId>io.springfox</groupId>
+    <artifactId>springfox-swagger2</artifactId>
+    <version>2.8.0</version>
+</dependency>
+<dependency>
+    <groupId>io.springfox</groupId>
+    <artifactId>springfox-swagger-ui</artifactId>
+    <version>2.8.0</version>
+</dependency>
+```
+### 配置类
+```java
+package com.config;
+import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.Configuration;
+import springfox.documentation.builders.ApiInfoBuilder;
+import springfox.documentation.builders.PathSelectors;
+import springfox.documentation.builders.RequestHandlerSelectors;
+import springfox.documentation.service.ApiInfo;
+import springfox.documentation.spi.DocumentationType;
+import springfox.documentation.spring.web.plugins.Docket;
+import springfox.documentation.swagger2.annotations.EnableSwagger2;
+
+@Configuration
+@EnableSwagger2
+public class swaggerconfig {
+    /**
+     * 创建API应用
+     * apiInfo() 增加API相关信息
+     * 通过select()函数返回一个ApiSelectorBuilder实例,用来控制哪些接口暴露给Swagger来展现，
+     * 本例采用指定扫描的包路径来定义指定要建立API的目录。
+     *.apis(RequestHandlerSelectors.basePackage("com.controller"))
+     *用来选择需要扫描的包名
+     *多个包名参考参考里的链接
+     */
+    @Bean
+    public Docket webApiConfig(){
+        return new Docket(DocumentationType.SWAGGER_2).groupName("Api")
+                .apiInfo(apiInfo())
+                .select()
+                .apis(RequestHandlerSelectors.basePackage("com.controller"))
+                .paths(PathSelectors.any())
+                .build();
+    }
+    private ApiInfo apiInfo() {
+        return new ApiInfoBuilder()
+                .title("这是一个标题")
+                .description("这是一些描述")
+                .version("版本号")
+                .build();
+    }
+}
+```
+
+
+## 项目结构
+---
+### 前端
+#### vue
+#### axios
+可以对请求进行封装写拦截器
+#### router
+页面跳转
+#### modejs
+用于前端数据测试
+### 后端
+#### mapper层
+#### service层
+写一些接口再通过接口
+再通过实现接口的方法实现
+实现接口的时候可以通过extend
+mybatis的东西来实现
+#### controller
+网络的访问获取
